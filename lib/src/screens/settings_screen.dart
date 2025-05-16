@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../providers/providers.dart';
 
@@ -135,6 +136,55 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text('Using selected server')));
+    }
+  }
+
+  Future<void> _clearAppData() async {
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) =>
+          AlertDialog(
+            title: const Text('Clear App Data'),
+            content: const Text(
+                'This will clear all app data including login information. '
+                    'You will need to log in again. Are you sure?'
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: TextButton.styleFrom(
+                  foregroundColor: Theme
+                      .of(context)
+                      .colorScheme
+                      .error,
+                ),
+                child: const Text('Clear Data'),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed == true) {
+      // Clear all app data
+      await ref.read(authServiceProvider).clearAllData();
+
+      // Log out the user
+      await ref.read(authStateProvider.notifier).logout();
+
+      if (mounted) {
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('App data cleared successfully')),
+        );
+
+        // Navigate to login screen
+        context.go('/login');
+      }
     }
   }
 
@@ -278,6 +328,43 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             );
                           },
                         ),
+
+                    const SizedBox(height: 24),
+
+                    // App Data section
+                    const Text(
+                      'App Data',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Clear all app data including login information and cached settings.',
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton.icon(
+                              onPressed: _clearAppData,
+                              icon: const Icon(Icons.delete_forever),
+                              label: const Text('Clear App Data'),
+                              style: ElevatedButton.styleFrom(
+                                foregroundColor: Theme
+                                    .of(context)
+                                    .colorScheme
+                                    .error,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

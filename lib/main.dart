@@ -17,12 +17,11 @@ class MyApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    // final isLoggedIn = ref.watch(authStateProvider);
+    final isLoggedIn = ref.watch(authStateProvider);
 
     final router = GoRouter(
       initialLocation: '/',
       redirect: (context, state) {
-        final isLoggedIn = ref.read(authStateProvider);
         final isLoginRoute = state.matchedLocation == '/login';
 
         if (!isLoggedIn && !isLoginRoute) return '/login';

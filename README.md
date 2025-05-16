@@ -140,3 +140,12 @@ lib/
 * On logout or incorrect entry, clear session and return to login.
 
 ---
+
+**9. Things to add**
+
+* Login on Enter
+* Back button in Settings
+* File chooser
+* stretch goal -> 3d preview image, auto generated
+
+---
