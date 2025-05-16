@@ -35,6 +35,10 @@
    - Implemented platform-specific discovery methods (mDNS for non-Android, network scanning for Android)
    - Added Quick Scan feature for Android to scan specific IP ranges
    - Added verbose logging option for troubleshooting server discovery issues
+   - Implemented login on Enter key press for faster authentication
+   - Added back button in Settings screen for improved navigation
+   - Integrated file chooser for selecting 3D model files with platform-specific handling
+   - Added macOS entitlements for secure file access
 
 ## Next Steps
 
@@ -93,4 +97,15 @@
    - Tap the refresh icon in the app bar for manual refresh
    - Job list automatically refreshes after adding, editing, or deleting jobs
 
-The project is now a fully-featured 3D print queue management application with a client-server architecture. The Flutter frontend can run on macOS, iOS, Android, and Web, connecting to a Dart API backend that can be discovered automatically on the local network or accessed remotely via a custom URL.
+5. **File Chooser and Platform-Specific Features**
+   - When adding or editing a job, use the file picker button to select 3D model files
+   - Platform-specific behavior:
+      - Android/iOS/macOS: Native file selection dialog
+      - Web: File selection with filename-only storage (due to web security limitations)
+      - Other platforms: Manual path entry with helpful guidance
+   - macOS users can access files securely through proper entitlements
+   - Helpful tooltips and error messages guide users through platform-specific limitations
+
+The project is now a fully-featured 3D print queue management application with a client-server architecture. The Flutter frontend can run on macOS, iOS,
+Android, and Web, connecting to a Dart API backend that can be discovered automatically on the local network or accessed remotely via a custom URL. The
+application provides a seamless user experience with platform-specific optimizations and robust error handling.

@@ -148,15 +148,19 @@ lib/
 
 ---
 
-**9. Planned Features**
+**9. Implemented Features**
 
-* Login on Enter key press
-* Back button in Settings screen
-* File chooser for selecting 3D model files
+* Login on Enter key press - Press Enter in the password field to submit login
+* Back button in Settings screen - Easy navigation back to the main screen
+* File chooser for selecting 3D model files - Platform-specific file picking with proper error handling
+* Cross-platform file access - macOS entitlements for file access
+
+**10. Planned Features**
+
 * 3D preview image generation (stretch goal)
 * Real-time list updates on external changes
 * Improved server discovery for Android devices
 * Abort button for job creation
-* store file instead of path
+* Store file instead of path
 
 ---
