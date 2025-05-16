@@ -1,7 +1,7 @@
 **3D Print Queue App Design**
 
 **1. Overview**
-A cross-platform Flutter application (macOS, iOS, Android) that manages a 3D print queue. The app is purely a front-end interface, connecting over HTTP/GraphQL to a standalone backend service hosted on your home server. This decoupling ensures the database (SQL or graph) remains independent and accessible to additional clients if needed.
+A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3D print queue. The app follows a client-server architecture, with a Flutter front-end connecting over HTTP to a standalone Dart-based API server. The server advertises itself on the local network using mDNS, allowing clients to automatically discover it. Clients can also manually configure a custom server URL for remote access. This decoupling ensures the database remains independent and accessible to multiple clients simultaneously.
 
 ---
 
@@ -11,6 +11,9 @@ A cross-platform Flutter application (macOS, iOS, Android) that manages a 3D pri
 * **Operations**: Add new job, edit existing, delete, reorder.
 * **Views**: List of jobs with sort options (by priority, date, name, custom order). Buttons on each list item for edit/delete. Drag‑and‑drop enabled only when custom ordering is active.
 * **Authentication**: Single global password prompt, no user roles.
+* **Refresh**: Manual refresh button and pull-to-refresh functionality to update the job list.
+* **Server Discovery**: Automatic discovery of the API server on the local network using mDNS.
+* **Server Configuration**: Settings screen to configure a custom server URL for remote access.
 
 ---
 
@@ -18,10 +21,13 @@ A cross-platform Flutter application (macOS, iOS, Android) that manages a 3D pri
 
 **3.1 Backend Service**
 
-* **Runtime Stack**: Dart-based server using `shelf`, or Python Flask—no Node.js required.
-* **Database**: SQLite or PostgreSQL installed directly in the container (CT) filesystem—no Docker.
-* **Service Layer**: A standalone REST or GraphQL server running as a `systemd` service.
-* **Endpoints / Queries**:
+* **Runtime Stack**: Dart-based server using `shelf` for HTTP handling and routing.
+* **Database**: SQLite database stored in the filesystem.
+* **Service Layer**: A standalone REST server running as a service.
+* **Service Discovery**: Uses mDNS (Multicast DNS) to advertise itself on the local network as "_printqueue._tcp".
+* **CORS Support**: Includes CORS middleware to allow cross-origin requests from web browsers.
+* **Network Binding**: Binds to all network interfaces (0.0.0.0) to allow connections from any device on the network.
+* **Endpoints**:
 
     * `GET /jobs` (with optional sort query)
     * `POST /jobs`
@@ -32,21 +38,19 @@ A cross-platform Flutter application (macOS, iOS, Android) that manages a 3D pri
 
 **3.2 Flutter Frontend**
 
-* **Platforms**: Targets macOS, iOS, and Android from a single codebase.
-* **State management**: `Riverpod` for authentication and job list state (preferred for Dart consistency).
-* **Routing**: `go_router` for declarative routing.
+* **Platforms**: Targets macOS, iOS, Android, and Web from a single codebase.
+* **State management**: `Riverpod` for authentication, job list state, and server discovery.
+* **Routing**: `go_router` for declarative routing between screens.
+* **Server Discovery**: Uses mDNS to discover API servers on the local network.
+* **Server Configuration**: Allows manual configuration of a custom server URL for remote access.
+* **Refresh Functionality**: Includes a refresh button in the app bar and pull-to-refresh support.
+* **Settings Screen**: Provides UI for server configuration and discovery.
 * **Build & Deployment**:
 
     * **macOS**: `flutter config --enable-macos-desktop` → `flutter build macos`.
     * **iOS**: `flutter build ios`.
     * **Android**: `flutter build apk` or `appbundle`.
-* **Platforms**: Targets macOS, iOS, and Android from a single codebase.
-* **State management**: `Provider` or `Riverpod` for authentication and job list state.
-* **Routing**: `go_router` or `Navigator` for Login → MainFlow → Add/Edit.
-* **Build & Deployment**:
-
-    * **macOS**: Enable desktop support (`flutter config --enable-macos-desktop`) and package as a standalone `.app` via `flutter build macos`.
-    * **iOS/Android**: Standard mobile build using `flutter build ios` and `flutter build apk`/`appbundle`.
+    * **Web**: `flutter build web`.
 
 ---
 
@@ -72,15 +76,20 @@ CREATE TABLE print_jobs (
 
 ```text
 lib/
-  main.dart             # App entrypoint + auth check
+  main.dart             # App entrypoint + routing
   src/
     models/             # Data classes (PrintJob)
-    services/           # API client, auth service
-    providers/          # Providers (AuthProvider, JobProvider)
+    services/           
+      api_service.dart         # API client for server communication
+      auth_service.dart        # Authentication service
+      server_discovery_service.dart  # mDNS server discovery
+    providers/          
+      providers.dart    # Providers (Auth, Jobs, ServerDiscovery)
     screens/
-      login_screen.dart
-      job_list_screen.dart
-      job_edit_screen.dart
+      login_screen.dart        # Password authentication
+      job_list_screen.dart     # Main job list with refresh
+      job_edit_screen.dart     # Add/edit job form
+      settings_screen.dart     # Server configuration
     widgets/
       job_item.dart     # ListTile with edit/delete
 ```
@@ -96,7 +105,8 @@ lib/
 
 2. **JobListScreen**
 
-    * AppBar with `PopupMenuButton` for sort mode: priority, date, name, custom.
+    * AppBar with refresh button, settings button, sort menu, and logout button.
+    * `RefreshIndicator` for pull-to-refresh functionality.
     * When sort==custom: use `ReorderableListView`; otherwise, `ListView.builder`.
     * List items: custom `JobItem` showing name, date, priority, description excerpt, `IconButton`s for edit/delete.
     * FloatingActionButton to add new job.
@@ -105,6 +115,14 @@ lib/
 
     * `TextFormField`s for name, date picker, priority dropdown, description, file URL picker.
     * `Save`/`Cancel` buttons.
+
+4. **SettingsScreen**
+
+    * Displays current server URL and connection status.
+    * Form for entering and saving a custom server URL.
+    * Button to clear custom URL and use automatic discovery.
+    * List of discovered servers on the local network.
+    * Refresh button to update the list of discovered servers.
 
 ---
 

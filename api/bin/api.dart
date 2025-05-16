@@ -1,8 +1,10 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:shelf/shelf.dart';
 import 'package:shelf/shelf_io.dart';
 import 'package:shelf_router/shelf_router.dart';
+import 'package:shelf_cors_headers/shelf_cors_headers.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 final db = sqlite3.open('../print_queue.sqlite');
@@ -143,12 +145,42 @@ class Api {
   }
 }
 
+// Function to log server information
+// Note: Service advertisement is not implemented in this version
+// Clients will need to use the server discovery feature or manually configure the server URL
+Future<void> logServerInfo(int port) async {
+  // Get the hostname of the machine
+  final String hostName = Platform.localHostname;
+  
+  // Get all network interfaces
+  final interfaces = await NetworkInterface.list(
+    includeLinkLocal: false,
+    type: InternetAddressType.IPv4,
+  );
+  
+  // Log server information
+  print('3D Print Queue Server running on:');
+  print('- Hostname: $hostName');
+  print('- Port: $port');
+  
+  // Print all available IP addresses
+  for (var interface in interfaces) {
+    for (var addr in interface.addresses) {
+      print('- Available at: http://${addr.address}:$port');
+    }
+  }
+}
+
 void main() async {
   initDb();
   final handler = Pipeline()
       .addMiddleware(logRequests())
+      .addMiddleware(corsHeaders()) // Add CORS middleware
       .addHandler(Api().router);
 
-  final server = await serve(handler, 'localhost', 8080);
+  final server = await serve(handler, '0.0.0.0', 8080);
   print('API server listening on http://${server.address.host}:${server.port}');
+
+  // Log server information
+  await logServerInfo(server.port);
 }
