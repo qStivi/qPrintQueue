@@ -156,5 +156,7 @@ lib/
 * 3D preview image generation (stretch goal)
 * Real-time list updates on external changes
 * Improved server discovery for Android devices
+* Abort button for job creation
+* store file instead of path
 
 ---

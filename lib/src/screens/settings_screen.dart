@@ -217,8 +217,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     int? startIp = int.tryParse(_startIpController.text);
     int? endIp = int.tryParse(_endIpController.text);
 
-    if (startIp == null || endIp == null || startIp < 1 || startIp > 254 ||
-        endIp < 1 || endIp > 254 || startIp > endIp) {
+    if (startIp == null ||
+        endIp == null ||
+        startIp < 1 ||
+        startIp > 254 ||
+        endIp < 1 ||
+        endIp > 254 ||
+        startIp > endIp) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please enter valid IP range (1-254)')),
       );
@@ -246,9 +251,9 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-              discoveredServers.isEmpty
-                  ? 'No servers found in the specified range'
-                  : 'Found ${discoveredServers.length} server(s)'
+            discoveredServers.isEmpty
+                ? 'No servers found in the specified range'
+                : 'Found ${discoveredServers.length} server(s)',
           ),
         ),
       );
@@ -298,12 +303,12 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     // Show confirmation dialog
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) =>
-          AlertDialog(
+      builder:
+          (context) => AlertDialog(
             title: const Text('Clear App Data'),
             content: const Text(
-                'This will clear all app data including login information. '
-                    'You will need to log in again. Are you sure?'
+              'This will clear all app data including login information. '
+              'You will need to log in again. Are you sure?',
             ),
             actions: [
               TextButton(
@@ -313,10 +318,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
               TextButton(
                 onPressed: () => Navigator.of(context).pop(true),
                 style: TextButton.styleFrom(
-                  foregroundColor: Theme
-                      .of(context)
-                      .colorScheme
-                      .error,
+                  foregroundColor: Theme.of(context).colorScheme.error,
                 ),
                 child: const Text('Clear Data'),
               ),
@@ -348,6 +350,10 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Server Settings'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -535,10 +541,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           Text(
                             'Scanning network...',
                             style: TextStyle(
-                              color: Theme
-                                  .of(context)
-                                  .colorScheme
-                                  .secondary,
+                              color: Theme.of(context).colorScheme.secondary,
                               fontSize: 14,
                             ),
                           ),
@@ -552,10 +555,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             ? 'Using network scanning on Android (may take longer)'
                             : 'Using mDNS discovery',
                         style: TextStyle(
-                          color: Theme
-                              .of(context)
-                              .colorScheme
-                              .secondary,
+                          color: Theme.of(context).colorScheme.secondary,
                           fontSize: 12,
                         ),
                       ),
@@ -571,9 +571,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                             children: [
                               const Text(
                                 'Quick Scan',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
+                                style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(height: 8),
                               const Text(
@@ -625,40 +623,38 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     const SizedBox(height: 8),
                     _isScanning && _discoveredServers.isEmpty
                         ? const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          'Scanning the network for servers...',
-                        ),
-                      ),
-                    )
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text('Scanning the network for servers...'),
+                          ),
+                        )
                         : _discoveredServers.isEmpty
                         ? const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          'No servers discovered on the local network',
-                        ),
-                      ),
-                    )
-                        : ListView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: _discoveredServers.length,
-                      itemBuilder: (context, index) {
-                        final server = _discoveredServers[index];
-                        return Card(
-                          child: ListTile(
-                            title: Text(server),
-                            trailing: IconButton(
-                              icon: const Icon(Icons.check_circle_outline),
-                              onPressed: () => _useDiscoveredServer(server),
-                              tooltip: 'Use this server',
+                          child: Padding(
+                            padding: EdgeInsets.all(16.0),
+                            child: Text(
+                              'No servers discovered on the local network',
                             ),
                           ),
-                        );
-                      },
-                    ),
+                        )
+                        : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _discoveredServers.length,
+                          itemBuilder: (context, index) {
+                            final server = _discoveredServers[index];
+                            return Card(
+                              child: ListTile(
+                                title: Text(server),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.check_circle_outline),
+                                  onPressed: () => _useDiscoveredServer(server),
+                                  tooltip: 'Use this server',
+                                ),
+                              ),
+                            );
+                          },
+                        ),
 
                     const SizedBox(height: 24),
 
@@ -681,9 +677,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                           children: [
                             const Text(
                               'Debug Settings',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
+                              style: TextStyle(fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(height: 8),
                             const Text(
@@ -697,10 +691,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                                     : 'Only essential logs will be shown',
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: Theme
-                                      .of(context)
-                                      .colorScheme
-                                      .secondary,
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
                                 ),
                               ),
                               value: _verboseLogging,
@@ -729,10 +721,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                               icon: const Icon(Icons.delete_forever),
                               label: const Text('Clear App Data'),
                               style: ElevatedButton.styleFrom(
-                                foregroundColor: Theme
-                                    .of(context)
-                                    .colorScheme
-                                    .error,
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.error,
                               ),
                             ),
                           ],
