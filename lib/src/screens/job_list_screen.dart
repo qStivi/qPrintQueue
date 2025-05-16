@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+
 import '../models/print_job.dart';
 import '../providers/providers.dart';
 import '../services/api_service.dart';
@@ -47,12 +48,13 @@ class JobListScreen extends ConsumerWidget {
       body: jobsAsync.when(
         data: (jobs) => _buildJobList(context, ref, jobs, sortMode, apiService),
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (error, stackTrace) => Center(
-          child: Text(
-            'Error loading jobs: ${error.toString()}',
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
-          ),
-        ),
+        error:
+            (error, stackTrace) => Center(
+              child: Text(
+                'Error loading jobs: ${error.toString()}',
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -65,31 +67,36 @@ class JobListScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSortButton(BuildContext context, WidgetRef ref, String currentSort) {
+  Widget _buildSortButton(
+    BuildContext context,
+    WidgetRef ref,
+    String currentSort,
+  ) {
     return PopupMenuButton<String>(
       icon: const Icon(Icons.sort),
       tooltip: 'Sort by',
       onSelected: (String sort) {
         ref.read(sortModeProvider.notifier).state = sort;
       },
-      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
-        const PopupMenuItem<String>(
-          value: 'priority',
-          child: Text('Sort by Priority'),
-        ),
-        const PopupMenuItem<String>(
-          value: 'date',
-          child: Text('Sort by Date'),
-        ),
-        const PopupMenuItem<String>(
-          value: 'name',
-          child: Text('Sort by Name'),
-        ),
-        const PopupMenuItem<String>(
-          value: 'custom',
-          child: Text('Custom Order'),
-        ),
-      ],
+      itemBuilder:
+          (BuildContext context) => <PopupMenuEntry<String>>[
+            const PopupMenuItem<String>(
+              value: 'priority',
+              child: Text('Sort by Priority'),
+            ),
+            const PopupMenuItem<String>(
+              value: 'date',
+              child: Text('Sort by Date'),
+            ),
+            const PopupMenuItem<String>(
+              value: 'name',
+              child: Text('Sort by Name'),
+            ),
+            const PopupMenuItem<String>(
+              value: 'custom',
+              child: Text('Custom Order'),
+            ),
+          ],
     );
   }
 
@@ -118,7 +125,13 @@ class JobListScreen extends ConsumerWidget {
           itemCount: jobs.length,
           itemBuilder: (context, index) {
             final job = jobs[index];
-            return _buildJobItem(context, ref, job, apiService, key: ValueKey(job.id));
+            return _buildJobItem(
+              context,
+              ref,
+              job,
+              apiService,
+              key: ValueKey(job.id),
+            );
           },
           onReorder: (oldIndex, newIndex) async {
             if (oldIndex < newIndex) {
@@ -142,10 +155,7 @@ class JobListScreen extends ConsumerWidget {
                 newOrderIndex = i - 1;
               }
 
-              updates.add({
-                'id': jobs[i].id,
-                'order_index': newOrderIndex,
-              });
+              updates.add({'id': jobs[i].id, 'order_index': newOrderIndex});
             }
 
             await apiService.reorderJobs(updates);
@@ -184,23 +194,24 @@ class JobListScreen extends ConsumerWidget {
       onDelete: () async {
         final confirmed = await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Delete Job'),
-            content: Text('Are you sure you want to delete "${job.name}"?'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Delete Job'),
+                content: Text('Are you sure you want to delete "${job.name}"?'),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancel'),
+                  ),
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    child: const Text('Delete'),
+                  ),
+                ],
               ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
-                child: const Text('Delete'),
-              ),
-            ],
-          ),
         );
 
         if (confirmed == true) {

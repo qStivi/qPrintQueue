@@ -47,9 +47,9 @@ class ServerDiscoveryService {
   // Enable or disable verbose logging
   void setVerboseLogging(bool enabled) {
     verboseLogging = enabled;
-    print('Verbose logging ${enabled
-        ? 'enabled'
-        : 'disabled'} for server discovery');
+    print(
+      'Verbose logging ${enabled ? 'enabled' : 'disabled'} for server discovery',
+    );
   }
 
   // Note: The API server is no longer advertising itself using mDNS due to package limitations.
@@ -72,16 +72,19 @@ class ServerDiscoveryService {
       await client.start();
 
       // Look for print queue servers
-      await for (final PtrResourceRecord ptr in client.lookup<PtrResourceRecord>(
-        ResourceRecordQuery.serverPointer(_serviceType),
-      )) {
-        await for (final SrvResourceRecord srv in client.lookup<SrvResourceRecord>(
-          ResourceRecordQuery.service(ptr.domainName),
-        )) {
-          // Get the IP address
-          await for (final IPAddressResourceRecord ip in client.lookup<IPAddressResourceRecord>(
-            ResourceRecordQuery.addressIPv4(srv.target),
+      await for (final PtrResourceRecord ptr in client
+          .lookup<PtrResourceRecord>(
+            ResourceRecordQuery.serverPointer(_serviceType),
           )) {
+        await for (final SrvResourceRecord srv in client
+            .lookup<SrvResourceRecord>(
+              ResourceRecordQuery.service(ptr.domainName),
+            )) {
+          // Get the IP address
+          await for (final IPAddressResourceRecord ip in client
+              .lookup<IPAddressResourceRecord>(
+                ResourceRecordQuery.addressIPv4(srv.target),
+              )) {
             final String serverUrl = 'http://${ip.address.address}:${srv.port}';
             if (!servers.contains(serverUrl)) {
               servers.add(serverUrl);
@@ -202,63 +205,67 @@ class ServerDiscoveryService {
 
       // Scan the subnet (using the specified range or default 1-254)
       for (int i = startIp; i <= endIp; i++) {
-        futures.add(semaphore.acquire().then((_) async {
-          final ipToCheck = '$subnetPrefix.$i';
-          final baseUrl = 'http://$ipToCheck:$port';
+        futures.add(
+          semaphore.acquire().then((_) async {
+            final ipToCheck = '$subnetPrefix.$i';
+            final baseUrl = 'http://$ipToCheck:$port';
 
-          // Skip the device's own IP
-          if (ipToCheck == wifiIP) {
-            return;
-          }
+            // Skip the device's own IP
+            if (ipToCheck == wifiIP) {
+              return;
+            }
 
-          // Try each endpoint
-          for (final endpoint in endpoints) {
-            try {
-              final url = '$baseUrl$endpoint';
-              if (verboseLogging) {
-                print('Checking: $url');
-              }
-
-              // Try to connect with a longer timeout
-              final response = await http.get(
-                Uri.parse(url),
-                headers: {'Accept': 'application/json'},
-              ).timeout(const Duration(milliseconds: 1000));
-
-              // Check for various status codes that might indicate our server
-              if (response.statusCode == 200 ||
-                  response.statusCode == 401 ||
-                  response.statusCode == 403 ||
-                  response.statusCode == 404) {
-                print('Found potential server at: $baseUrl (status: ${response
-                    .statusCode})');
-                if (!discoveredServers.contains(baseUrl)) {
-                  discoveredServers.add(baseUrl);
+            // Try each endpoint
+            for (final endpoint in endpoints) {
+              try {
+                final url = '$baseUrl$endpoint';
+                if (verboseLogging) {
+                  print('Checking: $url');
                 }
-                // No need to check other endpoints if we found a match
-                break;
-              }
-            } catch (e) {
-              // Log connection errors for debugging
-              if (verboseLogging) {
-                print(
-                    'Error checking $baseUrl$endpoint: ${e.toString().substring(
-                        0, min(50, e
-                        .toString()
-                        .length))}...');
+
+                // Try to connect with a longer timeout
+                final response = await http
+                    .get(
+                      Uri.parse(url),
+                      headers: {'Accept': 'application/json'},
+                    )
+                    .timeout(const Duration(milliseconds: 1000));
+
+                // Check for various status codes that might indicate our server
+                if (response.statusCode == 200 ||
+                    response.statusCode == 401 ||
+                    response.statusCode == 403 ||
+                    response.statusCode == 404) {
+                  print(
+                    'Found potential server at: $baseUrl (status: ${response.statusCode})',
+                  );
+                  if (!discoveredServers.contains(baseUrl)) {
+                    discoveredServers.add(baseUrl);
+                  }
+                  // No need to check other endpoints if we found a match
+                  break;
+                }
+              } catch (e) {
+                // Log connection errors for debugging
+                if (verboseLogging) {
+                  print(
+                    'Error checking $baseUrl$endpoint: ${e.toString().substring(0, min(50, e.toString().length))}...',
+                  );
+                }
               }
             }
-          }
 
-          semaphore.release();
-        }));
+            semaphore.release();
+          }),
+        );
       }
 
       // Wait for all scans to complete
       await Future.wait(futures);
 
-      print('Network scan complete. Found ${discoveredServers
-          .length} potential servers.');
+      print(
+        'Network scan complete. Found ${discoveredServers.length} potential servers.',
+      );
     } catch (e) {
       print('Network scanning error: $e');
     }
@@ -275,12 +282,14 @@ class ServerDiscoveryService {
         // For Android, use the known server IP
         await saveDefaultServerUrl('http://192.168.128.32:8080');
         print(
-            'Initialized default server URL for Android: http://192.168.128.32:8080');
+          'Initialized default server URL for Android: http://192.168.128.32:8080',
+        );
       } else {
         // For other platforms, use localhost
         await saveDefaultServerUrl('http://localhost:8080');
         print(
-            'Initialized default server URL for non-Android: http://localhost:8080');
+          'Initialized default server URL for non-Android: http://localhost:8080',
+        );
       }
     }
   }
@@ -326,9 +335,10 @@ class ServerDiscoveryService {
     }
 
     // Final fallback (should never reach here due to initialization)
-    final fallbackUrl = Platform.isAndroid
-        ? 'http://192.168.128.32:8080'
-        : 'http://localhost:8080';
+    final fallbackUrl =
+        Platform.isAndroid
+            ? 'http://192.168.128.32:8080'
+            : 'http://localhost:8080';
     print('No saved default URL found, using fallback: $fallbackUrl');
     return fallbackUrl;
   }

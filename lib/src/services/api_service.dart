@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:http/http.dart' as http;
+
 import '../models/print_job.dart';
 
 class ApiService {
@@ -27,9 +29,7 @@ class ApiService {
   }
 
   Future<List<PrintJob>> getJobs({String sort = 'priority'}) async {
-    final response = await http.get(
-      Uri.parse('$baseUrl/jobs?sort=$sort'),
-    );
+    final response = await http.get(Uri.parse('$baseUrl/jobs?sort=$sort'));
 
     final List<dynamic> data = jsonDecode(response.body);
     return data.map((json) => PrintJob.fromJson(json)).toList();
@@ -58,9 +58,7 @@ class ApiService {
   }
 
   Future<bool> deleteJob(int id) async {
-    final response = await http.delete(
-      Uri.parse('$baseUrl/jobs/$id'),
-    );
+    final response = await http.delete(Uri.parse('$baseUrl/jobs/$id'));
 
     final data = jsonDecode(response.body);
     return data['success'] == true;
