@@ -41,7 +41,11 @@ A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3
 * **Platforms**: Targets macOS, iOS, Android, and Web from a single codebase.
 * **State management**: `Riverpod` for authentication, job list state, and server discovery.
 * **Routing**: `go_router` for declarative routing between screens.
-* **Server Discovery**: Uses mDNS to discover API servers on the local network.
+* **Server Discovery**:
+    * Uses mDNS to discover API servers on non-Android platforms.
+    * Uses network scanning on Android platforms (as mDNS reusePort is not supported).
+    * Provides a Quick Scan feature on Android to scan specific IP ranges.
+    * Includes verbose logging option for troubleshooting discovery issues.
 * **Server Configuration**: Allows manual configuration of a custom server URL for remote access.
 * **Refresh Functionality**: Includes a refresh button in the app bar and pull-to-refresh support.
 * **Settings Screen**: Provides UI for server configuration and discovery.
@@ -123,6 +127,9 @@ lib/
     * Button to clear custom URL and use automatic discovery.
     * List of discovered servers on the local network.
     * Refresh button to update the list of discovered servers.
+   * On Android: Quick Scan feature to scan specific IP ranges.
+   * Debug settings with verbose logging option for troubleshooting.
+   * Default server URL configuration for fallback when discovery fails.
 
 ---
 
@@ -141,11 +148,13 @@ lib/
 
 ---
 
-**9. Things to add**
+**9. Planned Features**
 
-* Login on Enter
-* Back button in Settings
-* File chooser
-* stretch goal -> 3d preview image, auto generated
+* Login on Enter key press
+* Back button in Settings screen
+* File chooser for selecting 3D model files
+* 3D preview image generation (stretch goal)
+* Real-time list updates on external changes
+* Improved server discovery for Android devices
 
 ---

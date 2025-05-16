@@ -32,6 +32,9 @@
    - Implemented pull-to-refresh functionality for a more intuitive mobile experience
    - Created a settings screen for server configuration
    - Added automatic server discovery to simplify setup on local networks
+   - Implemented platform-specific discovery methods (mDNS for non-Android, network scanning for Android)
+   - Added Quick Scan feature for Android to scan specific IP ranges
+   - Added verbose logging option for troubleshooting server discovery issues
 
 ## Next Steps
 
@@ -39,7 +42,13 @@
    - Follow the instructions in instructions.md to create a GitHub repository named "qPrintQueue"
    - Push the local repository to GitHub
 
-2. **Project Development**
+2. **Investigate Android Server Discovery Issues**
+   - Research potential network configuration issues on Android devices
+   - Investigate if sandboxing or permissions are affecting network discovery
+   - Consider alternative discovery methods for Android platforms
+   - Test on different Android devices and network configurations
+
+3. **Project Development**
    - Add more robust error handling for network operations
    - Implement caching for offline operation
    - Add support for multiple server profiles
@@ -62,14 +71,24 @@
    - The API server now displays all available IP addresses on startup
    - Due to package limitations, automatic mDNS service advertisement is not available
    - The Flutter app prioritizes custom server URLs and localhost over network discovery
+   - Different discovery methods are used based on platform:
+      - Non-Android platforms: mDNS discovery
+      - Android platforms: Network scanning (due to reusePort not being supported)
 
 2. **Custom Server Configuration**
    - Access the settings screen by tapping the settings icon in the app bar
    - Enter a custom server URL for remote access (e.g., over the internet)
    - Select from discovered servers on the local network
    - Clear custom settings to return to automatic discovery
+   - On Android, use the Quick Scan feature to scan a specific IP range for faster server discovery
 
-3. **Refresh Functionality**
+3. **Troubleshooting Server Discovery**
+   - Enable verbose logging in the settings screen to see detailed connection attempts and errors
+   - Use the Quick Scan feature on Android to narrow down the IP range to scan
+   - If automatic discovery fails, manually enter the server URL
+   - Check network configuration, firewall settings, and app permissions if discovery issues persist
+
+4. **Refresh Functionality**
    - Pull down on the job list to refresh (pull-to-refresh)
    - Tap the refresh icon in the app bar for manual refresh
    - Job list automatically refreshes after adding, editing, or deleting jobs
