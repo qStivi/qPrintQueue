@@ -43,3 +43,12 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# CocoaPods related
+ios/Podfile
+ios/Podfile.lock
+macos/Podfile
+macos/Podfile.lock
+
+# Database files
+print_queue.sqlite
