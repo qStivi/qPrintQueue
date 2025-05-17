@@ -152,6 +152,7 @@ lib/
 
 * Login on Enter key press - Press Enter in the password field to submit login
 * Back button in Settings screen - Easy navigation back to the main screen
+* Back button in Job Edit screen - Ability to abort job creation/editing
 * File chooser for selecting 3D model files - Platform-specific file picking with proper error handling
 * Cross-platform file access - macOS entitlements for file access
 
@@ -160,7 +161,6 @@ lib/
 * 3D preview image generation (stretch goal)
 * Real-time list updates on external changes
 * Improved server discovery for Android devices
-* Abort button for job creation
 * Store file instead of path
 
 ---

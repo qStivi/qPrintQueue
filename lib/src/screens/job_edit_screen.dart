@@ -224,6 +224,10 @@ class _JobEditScreenState extends ConsumerState<JobEditScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isNewJob ? 'Add New Job' : 'Edit Job'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+        ),
         actions: [
           TextButton(
             onPressed: _isLoading ? null : _saveJob,

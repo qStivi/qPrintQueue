@@ -37,6 +37,7 @@
    - Added verbose logging option for troubleshooting server discovery issues
    - Implemented login on Enter key press for faster authentication
    - Added back button in Settings screen for improved navigation
+   - Added back button in Job Edit screen to abort job creation/editing
    - Integrated file chooser for selecting 3D model files with platform-specific handling
    - Added macOS entitlements for secure file access
 
