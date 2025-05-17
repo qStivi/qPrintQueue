@@ -7,6 +7,10 @@ class PrintJob {
   final String? description;
   final String status;
   final int? orderIndex;
+  final String? fileName;
+  final String? fileMimeType;
+  final int? fileSize;
+  final String? fileData; // Base64 encoded file data
 
   PrintJob({
     this.id,
@@ -17,6 +21,10 @@ class PrintJob {
     this.description,
     this.status = 'pending',
     this.orderIndex,
+    this.fileName,
+    this.fileMimeType,
+    this.fileSize,
+    this.fileData,
   });
 
   factory PrintJob.fromJson(Map<String, dynamic> json) {
@@ -29,6 +37,10 @@ class PrintJob {
       description: json['description'],
       status: json['status'],
       orderIndex: json['order_index'],
+      fileName: json['file_name'],
+      fileMimeType: json['file_mime_type'],
+      fileSize: json['file_size'],
+      fileData: json['file_data'],
     );
   }
 
@@ -42,6 +54,10 @@ class PrintJob {
       'description': description,
       'status': status,
       'order_index': orderIndex,
+      'file_name': fileName,
+      'file_mime_type': fileMimeType,
+      'file_size': fileSize,
+      'file_data': fileData,
     };
   }
 
@@ -54,6 +70,10 @@ class PrintJob {
     String? description,
     String? status,
     int? orderIndex,
+    String? fileName,
+    String? fileMimeType,
+    int? fileSize,
+    String? fileData,
   }) {
     return PrintJob(
       id: id ?? this.id,
@@ -64,6 +84,10 @@ class PrintJob {
       description: description ?? this.description,
       status: status ?? this.status,
       orderIndex: orderIndex ?? this.orderIndex,
+      fileName: fileName ?? this.fileName,
+      fileMimeType: fileMimeType ?? this.fileMimeType,
+      fileSize: fileSize ?? this.fileSize,
+      fileData: fileData ?? this.fileData,
     );
   }
 }

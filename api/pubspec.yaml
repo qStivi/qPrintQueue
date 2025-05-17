@@ -14,6 +14,8 @@ dependencies:
   dotenv: ^4.2.0       # for loading your DB path & password
   shelf_cors_headers: ^0.1.5
   multicast_dns: ^0.3.3
+  shelf_multipart: ^1.0.0
+  http_parser: ^4.0.2
 
 dev_dependencies:
   lints: ^5.0.0
