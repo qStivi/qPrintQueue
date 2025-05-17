@@ -7,7 +7,8 @@ A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3
 
 **2. Key Requirements**
 
-* **Data model**: Projects (BambuLab `.bambu` or sliced files), name, priority (integer or enum), scheduled date, description, and (optional) a custom `orderIndex` for drag‑and‑drop ordering.
+* **Data model**: Projects (BambuLab `.bambu` or sliced files), name, priority (integer or enum), scheduled date, description, file data (stored directly in the
+  database), and (optional) a custom `orderIndex` for drag‑and‑drop ordering.
 * **Operations**: Add new job, edit existing, delete, reorder.
 * **Views**: List of jobs with sort options (by priority, date, name, custom order). Buttons on each list item for edit/delete. Drag‑and‑drop enabled only when custom ordering is active.
 * **Authentication**: Single global password prompt, no user roles.
@@ -35,6 +36,9 @@ A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3
     * `DELETE /jobs/{id}`
     * `POST /auth/login` (password auth)
     * `PUT /jobs/reorder` (batch update of `orderIndex`)
+  * `POST /jobs/upload` (file upload with multipart form data)
+  * `GET /jobs/{id}/file` (file download)
+  * `POST /settings/file-limits` (configure file size limits)
 
 **3.2 Flutter Frontend**
 
@@ -68,7 +72,12 @@ CREATE TABLE print_jobs (
   priority INTEGER NOT NULL DEFAULT 0,
   scheduled_at TIMESTAMP NOT NULL,
   description TEXT,
-  order_index INTEGER DEFAULT NULL
+  status TEXT NOT NULL DEFAULT 'pending',
+  order_index INTEGER DEFAULT NULL,
+  file_data BLOB,
+  file_mime_type TEXT,
+  file_name TEXT,
+  file_size INTEGER
 );
 ```
 
@@ -155,12 +164,17 @@ lib/
 * Back button in Job Edit screen - Ability to abort job creation/editing
 * File chooser for selecting 3D model files - Platform-specific file picking with proper error handling
 * Cross-platform file access - macOS entitlements for file access
+* File storage in database - Store file data directly in the database instead of just file paths
+* File upload with progress tracking - Upload files with real-time progress indication
+* File download with progress tracking - Download files with real-time progress indication
+* Platform-specific file saving - Native save dialogs on macOS, document directory on mobile
 
 **10. Planned Features**
 
 * 3D preview image generation (stretch goal)
 * Real-time list updates on external changes
 * Improved server discovery for Android devices
-* Store file instead of path
+* File compression for large 3D models
+* Chunked uploads for very large files
 
 ---

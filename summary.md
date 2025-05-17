@@ -41,6 +41,15 @@
    - Integrated file chooser for selecting 3D model files with platform-specific handling
    - Added macOS entitlements for secure file access
 
+6. **Implemented File Storage and Download**
+   - Added file storage directly in the database instead of just storing file paths
+   - Implemented file upload endpoint with multipart form data support
+   - Added file download endpoint to retrieve stored files
+   - Created progress tracking for both uploads and downloads
+   - Implemented platform-specific file saving (native save dialogs on macOS, document directory on mobile)
+   - Added file size limit configuration with server-side enforcement
+   - Updated PrintJob model to include file metadata and data
+
 ## Next Steps
 
 1. **Create GitHub Repository**
@@ -106,6 +115,18 @@
       - Other platforms: Manual path entry with helpful guidance
    - macOS users can access files securely through proper entitlements
    - Helpful tooltips and error messages guide users through platform-specific limitations
+
+6. **File Storage and Download**
+   - Files are now stored directly in the database instead of just storing file paths
+   - Upload progress is displayed in real-time with a progress dialog
+   - Download button appears on job items that have associated files
+   - Download progress is displayed in real-time with a progress dialog
+   - Platform-specific file saving:
+      - macOS: Native save dialog allows choosing save location
+      - iOS/Android: Files are saved to the application documents directory
+      - Web: Files are downloaded through the browser's download mechanism
+   - File size limits are enforced on the server side (default 50MB)
+   - Comprehensive error handling for upload/download failures
 
 The project is now a fully-featured 3D print queue management application with a client-server architecture. The Flutter frontend can run on macOS, iOS,
 Android, and Web, connecting to a Dart API backend that can be discovered automatically on the local network or accessed remotely via a custom URL. The
