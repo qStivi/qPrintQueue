@@ -70,24 +70,27 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     // Get the current verbose logging setting
     final verboseLogging = discoveryService.verboseLogging;
 
-    setState(() {
-      _customServerUrl = customUrl;
-      _defaultServerUrl = defaultUrl;
-      _currentServerUrl = currentUrl;
-      _discoveredServers = discoveredServers;
-      _verboseLogging = verboseLogging;
+    // Check if the widget is still mounted before calling setState
+    if (mounted) {
+      setState(() {
+        _customServerUrl = customUrl;
+        _defaultServerUrl = defaultUrl;
+        _currentServerUrl = currentUrl;
+        _discoveredServers = discoveredServers;
+        _verboseLogging = verboseLogging;
 
-      if (customUrl != null) {
-        _serverUrlController.text = customUrl;
-      }
+        if (customUrl != null) {
+          _serverUrlController.text = customUrl;
+        }
 
-      if (defaultUrl != null) {
-        _defaultServerUrlController.text = defaultUrl;
-      }
+        if (defaultUrl != null) {
+          _defaultServerUrlController.text = defaultUrl;
+        }
 
-      _isScanning = false;
-      _isLoading = false;
-    });
+        _isScanning = false;
+        _isLoading = false;
+      });
+    }
   }
 
   Future<void> _saveCustomServerUrl() async {
@@ -163,6 +166,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         );
       }
     }
+    print(_defaultServerUrl);
   }
 
   Future<void> _resetDefaultServerUrl() async {
@@ -352,7 +356,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         title: const Text('Server Settings'),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.pop(),
+          onPressed: () => context.go('/'),
         ),
         actions: [
           IconButton(
