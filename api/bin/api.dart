@@ -437,7 +437,7 @@ void main() async {
   final handler = Pipeline()
       .addMiddleware(logRequests())
       .addMiddleware(corsHeaders())
-      .addHandler(Api().router);
+      .addHandler(Api().router.call);
 
   final server = await serve(handler, '0.0.0.0', 8080);
   print(

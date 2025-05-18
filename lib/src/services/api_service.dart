@@ -93,9 +93,9 @@ class ApiService {
 
       // Determine MIME type based on extension
       String mimeType = 'application/octet-stream'; // Default
-      if (fileExtension == '.stl')
+      if (fileExtension == '.stl') {
         mimeType = 'model/stl';
-      else if (fileExtension == '.obj')
+      } else if (fileExtension == '.obj')
         mimeType = 'model/obj';
       else if (fileExtension == '.3mf')
         mimeType = 'model/3mf';
