@@ -115,6 +115,10 @@
       - Other platforms: Manual path entry with helpful guidance
    - macOS users can access files securely through proper entitlements
    - Helpful tooltips and error messages guide users through platform-specific limitations
+   - The file picker logic is now unified for all platforms. Web users will see only the selected filename (not a full path) in the interface, which is a
+     browser security limitation. The app provides clear guidance in the UI about this difference, but otherwise the upload experience is consistent with native
+     platforms.
+
 
 6. **File Storage and Download**
    - Files are now stored directly in the database instead of just storing file paths

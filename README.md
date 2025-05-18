@@ -15,6 +15,12 @@ A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3
 * **Refresh**: Manual refresh button and pull-to-refresh functionality to update the job list.
 * **Server Discovery**: Automatic discovery of the API server on the local network using mDNS.
 * **Server Configuration**: Settings screen to configure a custom server URL for remote access.
+* **Unified File Picker Experience**: The file picker now uses a consistent code path across all supported platforms (macOS, iOS, Android, and Web).
+    - **Web Limitation**: On web, only the file name (not the full file path) is available for display and storage, due to browser sandboxing and security. The
+      file data itself is still uploaded and stored as usual.
+    - **UI Guidance**: The app shows clear helper texts when editing/creating a job on web to inform users that only the filename will be shown and no actual
+      path is available.
+    - **Consistent Upload Behavior**: Users can select and upload files on all platforms, with platform-appropriate dialogs and feedback.
 
 ---
 
@@ -168,6 +174,7 @@ lib/
 * File upload with progress tracking - Upload files with real-time progress indication
 * File download with progress tracking - Download files with real-time progress indication
 * Platform-specific file saving - Native save dialogs on macOS, document directory on mobile
+* Unified file picker implementation for all platforms, with web-specific filename handling and user guidance.
 
 **10. Planned Features**
 

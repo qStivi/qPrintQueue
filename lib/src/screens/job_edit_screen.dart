@@ -156,54 +156,100 @@ class _JobEditScreenState extends ConsumerState<JobEditScreen> {
     }
   }
 
+  String getMimeTypeFromExtension(String? ext) {
+    switch (ext?.toLowerCase()) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'pdf':
+        return 'application/pdf';
+      case 'doc':
+      case 'docx':
+        return 'application/msword';
+      // Add more as needed
+      default:
+        return 'application/octet-stream';
+    }
+  }
+
   Future<void> _pickFile() async {
     try {
-      // Platform-specific file picking logic
-      if (Platform.isAndroid || Platform.isIOS || Platform.isMacOS) {
-        // Use file_picker with platform-specific options
-        FilePickerResult? result = await FilePicker.platform.pickFiles(
-          type: FileType.any,
-          dialogTitle: 'Select Any File',
-          // Avoid using deprecated APIs
-          withData: false,
-          withReadStream: false,
-          allowMultiple: false,
-        );
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.any,
+        withData: true, // Always get bytes for web
+        allowMultiple: false,
+        dialogTitle: 'Select Any File',
+      );
 
-        if (result != null) {
-          final path = result.files.single.path;
-          if (path != null) {
-            setState(() {
-              _isUploading = true;
-            });
+      if (result != null) {
+        final file = result.files.single;
+        final fileName = file.name;
+        final filePath = file.path; // will be null on web
+        final fileBytes = file.bytes;
+        final fileExtension = file.extension;
+        final fileMimeType = getMimeTypeFromExtension(fileExtension);
 
-            final file = File(path);
-            final fileName = path
-                .split('/')
-                .last;
+        setState(() {
+          _isUploading = true;
+        });
 
-            // Show upload progress dialog
-            if (mounted) {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) =>
-                    UploadProgressDialog(
-                      fileName: fileName,
-                      progressStream: _uploadProgressController.stream,
+        // Show upload progress dialog
+        if (mounted) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder:
+                (context) => UploadProgressDialog(
+                  fileName: fileName,
+                  progressStream: _uploadProgressController.stream,
+                ),
+          );
+        }
+
+        try {
+          String base64FileData;
+          int fileSize;
+
+          if (kIsWeb) {
+            // --- WEB BRANCH: Never use File ---
+            if (fileBytes != null) {
+              base64FileData = base64Encode(fileBytes);
+              fileSize = fileBytes.length;
+
+              setState(() {
+                _fileName = fileName;
+                _fileMimeType = fileMimeType;
+                _fileSize = fileSize;
+                _fileData = base64FileData;
+                _fileUrlController.text = fileName;
+              });
+
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text(
+                      'File selected: $fileName. On web, file data is stored in memory.',
                     ),
-              );
+                  ),
+                );
+              }
+            } else {
+              throw Exception('No file data found on web');
             }
+          } else {
+            // --- IO BRANCH: Use File ---
+            if (filePath != null) {
+              // Don't even try to import or use File on web.
+              final fileObj = File(filePath);
+              final bytes = await fileObj.readAsBytes();
+              base64FileData = base64Encode(bytes);
+              fileSize = bytes.length;
 
-            try {
-              // Read file data and encode as base64
-              final fileBytes = await file.readAsBytes();
-              final base64FileData = base64Encode(fileBytes);
-
-              // Upload file to server
               final apiService = ref.read(apiServiceProvider);
               final uploadResult = await apiService.uploadFile(
-                file,
+                fileObj,
                 onProgress: (progress) {
                   _uploadProgressController.add(progress);
                 },
@@ -211,131 +257,44 @@ class _JobEditScreenState extends ConsumerState<JobEditScreen> {
 
               if (uploadResult['success'] == true) {
                 setState(() {
-                  // Store file metadata
-                  _fileName = uploadResult['file_name'];
-                  _fileMimeType = uploadResult['file_mime_type'];
-                  _fileSize = uploadResult['file_size'];
-                  _fileData =
-                      base64FileData; // Store the base64 encoded file data
-
-                  // Keep the file path for display purposes
-                  _fileUrlController.text = path;
+                  _fileName = uploadResult['file_name'] ?? fileName;
+                  _fileMimeType =
+                      uploadResult['file_mime_type'] ?? fileMimeType;
+                  _fileSize = uploadResult['file_size'] ?? fileSize;
+                  _fileData = base64FileData;
+                  _fileUrlController.text = filePath;
                 });
 
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(
-                        'File uploaded successfully: $_fileName')),
+                    SnackBar(
+                      content: Text('File uploaded successfully: $_fileName'),
+                    ),
                   );
                 }
               } else {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(content: Text(
-                        'Upload failed: ${uploadResult['error'] ??
-                            "Unknown error"}')),
+                    SnackBar(
+                      content: Text(
+                        'Upload failed: ${uploadResult['error'] ?? "Unknown error"}',
+                      ),
+                    ),
                   );
                 }
               }
-            } finally {
-              // Close the progress dialog
-              if (mounted) {
-                Navigator.of(context).pop();
-              }
+            } else {
+              throw Exception('No file path found');
             }
           }
-        }
-      } else if (kIsWeb) {
-        // Web platform has limitations with file paths
-        // Use a more compatible approach for web
-        FilePickerResult? result = await FilePicker.platform.pickFiles(
-          type: FileType.any,
-          // For web, we need the bytes or name since paths aren't available
-          withData: true,
-          allowMultiple: false,
-        );
-
-        if (result != null) {
-          final fileName = result.files.single.name;
-          final bytes = result.files.single.bytes;
-
-          if (bytes != null) {
-            setState(() {
-              _isUploading = true;
-            });
-
-            // Show upload progress dialog
-            if (mounted) {
-              showDialog(
-                context: context,
-                barrierDismissible: false,
-                builder: (context) =>
-                    UploadProgressDialog(
-                      fileName: fileName,
-                      progressStream: _uploadProgressController.stream,
-                    ),
-              );
-            }
-
-            // Simulate progress for web (since we can't track it)
-            for (int i = 1; i <= 10; i++) {
-              await Future.delayed(const Duration(milliseconds: 100));
-              _uploadProgressController.add(i / 10);
-            }
-
-            setState(() {
-              // Store file metadata
-              _fileName = fileName;
-              _fileMimeType = 'application/octet-stream'; // Default for web
-              _fileSize = bytes.length;
-              _fileData =
-                  base64Encode(bytes); // Store the base64 encoded file data
-
-              // Keep the file name for display purposes
-              _fileUrlController.text = fileName;
-            });
-
-            // Close the progress dialog
-            if (mounted) {
-              Navigator.of(context).pop();
-
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Note: On web, file data is stored directly due to platform limitations',
-                  ),
-                  duration: Duration(seconds: 5),
-                ),
-              );
-            }
+        } finally {
+          if (mounted) {
+            Navigator.of(context).pop();
           }
-        }
-      } else {
-        // Fallback for other platforms
-        // Prompt user to enter path manually
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
-                'File picking not fully supported on this platform. Please enter the file path manually.',
-              ),
-              duration: Duration(seconds: 5),
-            ),
-          );
         }
       }
     } catch (e) {
-      // Improved error handling with more specific messages
       String errorMessage = 'Error picking file: ${e.toString()}';
-
-      if (e.toString().contains('MissingPluginException')) {
-        errorMessage =
-            'File picker plugin not available on this platform. Please enter the file path manually.';
-      } else if (e.toString().contains('Unsupported operation')) {
-        errorMessage =
-            'File picking is not supported on this platform. Please enter the file path manually.';
-      }
-
       if (mounted) {
         ScaffoldMessenger.of(
           context,
