@@ -1,7 +1,10 @@
 **3D Print Queue App Design**
 
 **1. Overview**
-A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3D print queue. The app follows a client-server architecture, with a Flutter front-end connecting over HTTP to a standalone Dart-based API server. The server advertises itself on the local network using mDNS, allowing clients to automatically discover it. Clients can also manually configure a custom server URL for remote access. This decoupling ensures the database remains independent and accessible to multiple clients simultaneously.
+A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3D print queue. The app follows a client-server architecture, with a Flutter
+front-end connecting over HTTP to a standalone Dart-based API server. The server advertises itself on the local network using mDNS, allowing clients to
+automatically discover it. Clients can also manually configure a custom server URL for remote access. This decoupling ensures the database remains independent
+and accessible to multiple clients simultaneously.
 
 ---
 
@@ -10,7 +13,8 @@ A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3
 * **Data model**: Projects (BambuLab `.bambu` or sliced files), name, priority (integer or enum), scheduled date, description, file data (stored directly in the
   database), and (optional) a custom `orderIndex` for drag‑and‑drop ordering.
 * **Operations**: Add new job, edit existing, delete, reorder.
-* **Views**: List of jobs with sort options (by priority, date, name, custom order). Buttons on each list item for edit/delete. Drag‑and‑drop enabled only when custom ordering is active.
+* **Views**: List of jobs with sort options (by priority, date, name, custom order). Buttons on each list item for edit/delete. Drag‑and‑drop enabled only when
+  custom ordering is active.
 * **Authentication**: Single global password prompt, no user roles.
 * **Refresh**: Manual refresh button and pull-to-refresh functionality to update the job list.
 * **Server Discovery**: Automatic discovery of the API server on the local network using mDNS.
@@ -71,19 +75,20 @@ A cross-platform Flutter application (macOS, iOS, Android, Web) that manages a 3
 **4. Database Schema**
 
 ```sql
-CREATE TABLE print_jobs (
-  id SERIAL PRIMARY KEY,
-  file_url TEXT NOT NULL,
-  name TEXT NOT NULL,
-  priority INTEGER NOT NULL DEFAULT 0,
-  scheduled_at TIMESTAMP NOT NULL,
-  description TEXT,
-  status TEXT NOT NULL DEFAULT 'pending',
-  order_index INTEGER DEFAULT NULL,
-  file_data BLOB,
-  file_mime_type TEXT,
-  file_name TEXT,
-  file_size INTEGER
+CREATE TABLE print_jobs
+(
+    id             SERIAL PRIMARY KEY,
+    file_url       TEXT      NOT NULL,
+    name           TEXT      NOT NULL,
+    priority       INTEGER   NOT NULL DEFAULT 0,
+    scheduled_at   TIMESTAMP NOT NULL,
+    description    TEXT,
+    status         TEXT      NOT NULL DEFAULT 'pending',
+    order_index    INTEGER            DEFAULT NULL,
+    file_data      BLOB,
+    file_mime_type TEXT,
+    file_name      TEXT,
+    file_size      INTEGER
 );
 ```
 
@@ -165,6 +170,8 @@ lib/
 
 **9. Implemented Features**
 
+* Fixed a rare crash when cancelling downloads: The app now tracks the download progress dialog state and avoids double-closing it, preventing navigator stack
+  errors (especially with go_router and on macOS file save cancel).
 * Login on Enter key press - Press Enter in the password field to submit login
 * Back button in Settings screen - Easy navigation back to the main screen
 * Back button in Job Edit screen - Ability to abort job creation/editing
@@ -175,6 +182,7 @@ lib/
 * File download with progress tracking - Download files with real-time progress indication
 * Platform-specific file saving - Native save dialogs on macOS, document directory on mobile
 * Unified file picker implementation for all platforms, with web-specific filename handling and user guidance.
+* Updated dependency versions (go_router, network_info_plus, permission_handler) for better platform support and bug fixes.
 
 **10. Planned Features**
 
@@ -183,5 +191,6 @@ lib/
 * Improved server discovery for Android devices
 * File compression for large 3D models
 * Chunked uploads for very large files
+* View and edit archive
 
 ---

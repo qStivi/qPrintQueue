@@ -29,7 +29,15 @@ class JobItem extends ConsumerStatefulWidget {
 
 class _JobItemState extends ConsumerState<JobItem> {
   bool _isDownloading = false;
+  bool _isProgressDialogOpen = false;
   late StreamController<double> _downloadProgressController;
+
+  void _safePopProgressDialog() {
+    if (_isProgressDialogOpen && mounted) {
+      Navigator.of(context).pop();
+      _isProgressDialogOpen = false;
+    }
+  }
 
   // Create a new StreamController for each download to avoid "Stream already listened to" errors
   void _createNewProgressController() {
@@ -72,9 +80,9 @@ class _JobItemState extends ConsumerState<JobItem> {
 
     setState(() {
       _isDownloading = true;
+      _isProgressDialogOpen = true;
     });
 
-    // Show download progress dialog
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -98,7 +106,7 @@ class _JobItemState extends ConsumerState<JobItem> {
 
       // Close progress dialog after download completes
       if (mounted) {
-        Navigator.of(context).pop();
+        _safePopProgressDialog();
       }
 
       // Platform-specific file saving
@@ -131,8 +139,8 @@ class _JobItemState extends ConsumerState<JobItem> {
 
           if (outputFilePath == null) {
             // user cancelled
+            _safePopProgressDialog();
             if (mounted) {
-              Navigator.of(context).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('File save cancelled')),
               );
@@ -193,9 +201,7 @@ class _JobItemState extends ConsumerState<JobItem> {
     } catch (e) {
       print('Download error: $e');
       if (mounted) {
-        // Close progress dialog if still showing
-        Navigator.of(context).pop();
-
+        _safePopProgressDialog();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Download failed: ${e.toString()}')),
         );

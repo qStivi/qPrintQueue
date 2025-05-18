@@ -5,9 +5,9 @@
 1. **Reviewed and Updated .gitignore Files**
    - Examined the main .gitignore file for Flutter/Dart projects
    - Enhanced the API-specific .gitignore file to exclude:
-     - Coverage reports
-     - Database files (*.sqlite, *.db)
-     - Build files
+      - Coverage reports
+      - Database files (*.sqlite, *.db)
+      - Build files
 
 2. **Git Repository Setup**
    - Initialized a git repository in the project root
@@ -50,6 +50,11 @@
    - Added file size limit configuration with server-side enforcement
    - Updated PrintJob model to include file metadata and data
 
+7. **Bug Fixes and Dependency Updates**
+   - Fixed a navigation stack error triggered when cancelling file downloads (especially on macOS): Added safe progress dialog state management to avoid double
+     pop of Navigator, preventing assertion failures with go_router.
+   - Updated dependencies (go_router, network_info_plus, permission_handler) to latest versions for bug fixes and improved compatibility.
+
 ## Next Steps
 
 1. **Create GitHub Repository**
@@ -71,11 +76,11 @@
 ## Project Structure
 
 - `/lib`: Flutter application code
-  - `/src/models`: Data models for print jobs
-  - `/src/services`: API, authentication, and server discovery services
-  - `/src/providers`: State management with Riverpod
-  - `/src/screens`: UI screens including settings and job management
-  - `/src/widgets`: Reusable UI components
+   - `/src/models`: Data models for print jobs
+   - `/src/services`: API, authentication, and server discovery services
+   - `/src/providers`: State management with Riverpod
+   - `/src/screens`: UI screens including settings and job management
+   - `/src/widgets`: Reusable UI components
 - `/api`: Dart API backend with network interface discovery
 - `/test`: Test files
 
@@ -116,7 +121,8 @@
    - macOS users can access files securely through proper entitlements
    - Helpful tooltips and error messages guide users through platform-specific limitations
    - The file picker logic is now unified for all platforms. Web users will see only the selected filename (not a full path) in the interface, which is a
-     browser security limitation. The app provides clear guidance in the UI about this difference, but otherwise the upload experience is consistent with native
+     browser security limitation. The app provides clear guidance in the UI about this difference, but otherwise the upload experience is consistent with
+     native
      platforms.
 
 
