@@ -59,6 +59,7 @@ dependencies:
   file_selector: ^1.0.1
   http_parser: ^4.0.2
 
+  path: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

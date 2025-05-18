@@ -165,7 +165,7 @@ class _JobItemState extends ConsumerState<JobItem> {
             }
           } catch (writeError) {
             print('Error writing file: $writeError');
-            throw writeError; // Re-throw to be caught by outer catch block
+            rethrow; // Re-throw to be caught by outer catch block
           }
         } catch (e) {
           print('Error in file save process: $e');
@@ -318,8 +318,9 @@ class _JobItemState extends ConsumerState<JobItem> {
   String _formatFileSize(int bytes) {
     if (bytes < 1024) return '$bytes B';
     if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
-    if (bytes < 1024 * 1024 * 1024)
+    if (bytes < 1024 * 1024 * 1024) {
       return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+    }
     return '${(bytes / (1024 * 1024 * 1024)).toStringAsFixed(1)} GB';
   }
 
